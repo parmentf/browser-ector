@@ -1,0 +1,158 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline; }
+
+html {
+  line-height: 1; }
+
+ol, ul {
+  list-style: none; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle; }
+
+q, blockquote {
+  quotes: none; }
+  q:before, q:after, blockquote:before, blockquote:after {
+    content: "";
+    content: none; }
+
+a img {
+  border: none; }
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
+  display: block; }
+
+body {
+  font-family: arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  /*background: url(wood.jpg) center top repeat;*/
+  color: #4e4e4e; }
+
+
+#form {
+  position: fixed;
+  left: 65px;
+  right: 0;
+  bottom: 0;
+  background: #d2d2d2;
+  height: 50px; }
+  #form .text {
+    padding: 0 5px;
+    border: solid 1px #d2d2d2;
+    height: 32px;
+    position: fixed;
+    bottom: 9px;
+    left: 74px;
+    right: 9px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 1px 3px #d2d2d2 inset;
+    -moz-box-shadow: 0px 1px 3px #d2d2d2 inset;
+    box-shadow: 0px 1px 3px #d2d2d2 inset; }
+  #form .submit {
+    position: fixed;
+    height: 32px;
+    bottom: 9px;
+    right: 9px;
+    cursor: pointer; }
+
+#messages {
+  position: fixed;
+  top: 0;
+  left: 65px;
+  right: 0px;
+  bottom: 30px;
+  overflow: scroll;
+  padding: 10px; }
+  #messages .message {
+    display: block;
+    position: relative;
+    background-color: #FFF;
+    border-bottom: 1px solid #d2d2d2;
+    padding: 10px;
+    z-index: 20;
+    -webkit-animation-name: "fadeInRight";
+    -moz-animation-name: "fadeInRight";
+    -ms-animation-name: "fadeInRight";
+    -o-animation-name: "fadeInRight";
+    animation-name: "fadeInRight";
+    -webkit-animation-duration: 0.4s;
+    -moz-animation-duration: 0.4s;
+    -ms-animation-duration: 0.4s;
+    -o-animation-duration: 0.4s;
+    animation-duration: 0.4s; }
+    #messages .message:after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      right: 0;
+      background-color: #FFF;
+      height: 1px;
+      z-index: 10;
+      border-bottom: 1px solid #d2d2d2; }
+    #messages .message:before {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      right: 0;
+      background-color: #FFF;
+      height: 1px;
+      z-index: 10;
+      border-bottom: 1px solid #d2d2d2; }
+  #messages img {
+    position: absolute;
+    display: block;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0px 0px 10px black inset;
+    -moz-box-shadow: 0px 0px 10px black inset;
+    box-shadow: 0px 0px 10px black inset; }
+  #messages .info {
+    margin-left: 65px; }
+  #messages strong {
+    font-weight: bold;
+    color: #4e4e4e;
+    font-size: 14px; }
+  #messages p {
+    margin-bottom: 10px;
+    font-size: 14px; }
+  #messages .date {
+    font-size: 12px;
+    color: #ababab;
+    position: absolute;
+    top: 10px;
+    right: 10px; }
+  #messages .sep {
+    height: 20px; }
