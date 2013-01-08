@@ -2,7 +2,7 @@ $(window).load(function () {
     var Ector = require('ector');
     var ector = new Ector();
     var previousResponseNodes = null;
-    var user = { username: "Guy"}
+    var user = { username: "Guy"};
     var msgtpl = $('#msgtpl').html();
     var lastmsg = false;
     $('#msgtpl').remove();
@@ -17,7 +17,7 @@ $(window).load(function () {
             h: d.getHours(),
             m: d.getMinutes()
         };
-        $('#message').value = ''; // FIXME
+        $('#message').attr('value',''); // FIXME
 
         $('#messages').append('<div class="message">' + Mustache.render(msgtpl, message) + '</div>');
         $('#messages').animate({scrollTop : $('#messages').prop('scrollHeight')}, 500);
