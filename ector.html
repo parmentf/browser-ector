@@ -10,6 +10,8 @@
     </head>
     <body>
         <h1>ECTOR</h1>
+        <p><button id="save" title="Save ECTOR in your browser">Save</button></p>
+        <p><button id="load" title="Load ECTOR from your browser">Load</button></p>
         <div id="messages">
             <div class="message" id="msgtpl" style="display:none;">
                 <!-- <img src="{{{user.avatar}}}" alt="avatar"> -->
@@ -21,7 +23,7 @@
             </div>
         </div>
         <form action="javascript:false;" id="form">
-            <input type="text" id="message" class="text" autofocus="autofocus" placeholder="Enter your message here.">
+            <input type="text" id="message" class="text" autofocus="autofocus" placeholder="Enter your message here." size="80">
             <input type="submit" id="send" value="Say" class="submit" type="submit">
         </form>
 

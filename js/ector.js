@@ -1,4 +1,17 @@
 $(window).load(function () {
+    var load = $('#load');
+    var save = $('#save');
+    if (!localStorage) {
+        load.remove();
+        save.remove();
+    }
+    else {
+        save.hide();
+        if (typeof localStorage.ector === 'undefined') {
+            load.hide();
+        }
+    }
+
     var Ector = require('ector');
     ector = new Ector();
     var previousResponseNodes = null;
@@ -9,6 +22,7 @@ $(window).load(function () {
     var message;
 
     $('#send').on('click', function () {
+        if (localStorage) { save.show(); load.show(); }
         var d = new Date();
         var entry = $('#message').val();
         message = {
@@ -37,6 +51,26 @@ $(window).load(function () {
         };
         $('#messages').append('<div class="message">' + Mustache.render(msgtpl, message) + '</div>');
         $('#messages').animate({scrollTop : $('#messages').prop('scrollHeight')}, 500);
+        return false;
+    });
+
+    save.on('click', function () {
+        localStorage.setItem('ector', JSON.stringify(ector.cn));
+        load.hide();
+        save.hide();
+        alert('ECTOR saved.');
+        return false;
+    });
+
+    load.on('click', function () {
+        var cn = localStorage.ector;
+        ector.cns = {};
+        var newCN = Object.create(require('concept-network').ConceptNetwork.prototype);
+        Object.merge(newCN, JSON.parse(cn));
+        ector.cn = newCN;
+        ector.setUser(ector.username);
+        load.hide();
+        alert('ECTOR loaded.');
         return false;
     });
 });
