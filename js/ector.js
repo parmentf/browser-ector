@@ -17,7 +17,7 @@ $(window).load(function () {
             h: d.getHours(),
             m: d.getMinutes()
         };
-        $('#message').attr('value',''); // FIXME
+        $('#message').attr('value','');
 
         $('#messages').append('<div class="message">' + Mustache.render(msgtpl, message) + '</div>');
         $('#messages').animate({scrollTop : $('#messages').prop('scrollHeight')}, 500);
