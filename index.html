@@ -1,0 +1,59 @@
+<h1>ECTOR</h1>
+
+<p>A learning chatterbot in HTML / Javascript (ECTOR).</p>
+
+<p>The browserified (<a href="https://github.com/substack/node-browserify/">browserify</a>) version of <a href="https://github.com/parmentf/node-ector">node-ector</a>.</p>
+
+<h2>Installation</h2>
+
+<h3>Get the files</h3>
+
+<p>Download the files: https://github.com/parmentf/browser-ector/archive/master.zip</p>
+
+<p>Or clone the repository:
+<code>bash
+git clone https://github.com/parmentf/browser-ector.git
+</code></p>
+
+<h3>Try it</h3>
+
+<p>Then, drag and drop file <code>browser-ector/ector.html</code> into your browser
+(tested in Google Chrome 23, Firefox 18 and Chromium 20).</p>
+
+<h3>Put it in another application</h3>
+
+<p>Import <code>js/bundle-ector.js</code>, <code>js/jquery-1.8.3.min.js</code>, <code>js/mustache.js</code>, and
+<code>js/ector.js</code> into your HTML page.</p>
+
+<p>Take a look at <code>ector.js</code>, and adapt it to your web application.</p>
+
+<p>The important part is:
+```javascript
+var Ector = require('ector');
+ector = new Ector();</p>
+
+<p>var previousResponseNodes = null;
+ector.addEntry(entry);
+ector.linkNodesToLastSentence(previousResponseNodes);
+var response = ector.generateResponse();
+console.log('%s: %s', ector.name, response.sentence);
+previousResponseNodes = response.nodes;
+```</p>
+
+<p>You can customize your Ector, using its parameters:
+<code>javascript
+ector = new Ector('botname', 'username');
+</code></p>
+
+<h2>Release History</h2>
+
+<ul>
+<li>2013/01/09: version 0.1.3: add save/load in the example</li>
+<li>2013/01/09: version 0.1.2: fix Firefox's version</li>
+<li>2013/01/08: version 0.1.0: first release</li>
+</ul>
+
+<h2>License</h2>
+
+<p>Copyright (c) 2013 François Parmentier <a href="&#109;a&#105;&#x6C;&#x74;&#111;:&#x66;&#x72;&#x61;n&#99;&#111;&#x69;&#x73;&#46;&#112;&#x61;&#x72;&#x6D;&#101;&#110;&#116;&#x69;&#101;&#x72;&#64;&#103;&#x6D;&#x61;&#105;&#x6C;&#x2E;&#x63;&#111;&#x6D;">&#x66;&#x72;&#x61;n&#99;&#111;&#x69;&#x73;&#46;&#112;&#x61;&#x72;&#x6D;&#101;&#110;&#116;&#x69;&#101;&#x72;&#64;&#103;&#x6D;&#x61;&#105;&#x6C;&#x2E;&#x63;&#111;&#x6D;</a>
+Licensed under the MIT license.</p>

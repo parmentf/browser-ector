@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>ECTOR</title>
+        <meta charset='utf-8'>
+        <script type="text/javascript" src="js/bundle-ector.js"></script>
+        <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+        <script type="text/javascript" src="js/mustache.js"></script>
+        <script type="text/javascript" src="js/ector.js"></script>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <h1>ECTOR</h1>
+        <p><button id="save" title="Save ECTOR in your browser">Save</button></p>
+        <p><button id="load" title="Load ECTOR from your browser">Load</button></p>
+        <div id="messages">
+            <div class="message" id="msgtpl" style="display:none;">
+                <!-- <img src="{{{user.avatar}}}" alt="avatar"> -->
+                <div class="info">
+                    <p><strong>{{user.username}}</strong></p>
+                    <p>{{message}}</p>
+                    <span class="date">{{h}}.{{m}}</span>
+                </div>
+            </div>
+        </div>
+        <form action="javascript:false;" id="form">
+            <input type="text" id="message" class="text" autofocus="autofocus" placeholder="Enter your message here." size="80">
+            <input type="submit" id="send" value="Say" class="submit" type="submit">
+        </form>
+
+    </body>
+</html>
