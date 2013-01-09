@@ -42,6 +42,7 @@ ector = new Ector('botname', 'username');
 ```
 
 ## Release History
+* 2013/01/09: version 0.1.3: add save/load in the example
 * 2013/01/09: version 0.1.2: fix Firefox's version
 * 2013/01/08: version 0.1.0: first release
 
