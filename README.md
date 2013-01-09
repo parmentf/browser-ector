@@ -41,6 +41,14 @@ You can customize your Ector, using its parameters:
 ector = new Ector('botname', 'username');
 ```
 
+## Demonstration
+
+You can take a look at the example page, and [talk to
+ECTOR](http://parmentf.github.com/browser-ector/ector.html) (name it `ECTOR`,
+it will recognize its name).
+
+At this moment, your name is `Guy`, guy. OK?
+
 ## Release History
 * 2013/01/09: version 0.1.3: add save/load in the example
 * 2013/01/09: version 0.1.2: fix Firefox's version
