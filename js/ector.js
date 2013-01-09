@@ -37,5 +37,6 @@ $(window).load(function () {
         };
         $('#messages').append('<div class="message">' + Mustache.render(msgtpl, message) + '</div>');
         $('#messages').animate({scrollTop : $('#messages').prop('scrollHeight')}, 500);
+        return false;
     });
 });
