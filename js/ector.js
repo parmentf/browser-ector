@@ -1,6 +1,6 @@
 $(window).load(function () {
     var Ector = require('ector');
-    var ector = new Ector();
+    ector = new Ector();
     var previousResponseNodes = null;
     var user = { username: "Guy"};
     var msgtpl = $('#msgtpl').html();
