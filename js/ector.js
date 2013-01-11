@@ -1,6 +1,8 @@
 $(window).load(function () {
     var load = $('#load');
     var save = $('#save');
+    var name = $('#name');
+
     if (!localStorage) {
         load.remove();
         save.remove();
@@ -15,11 +17,12 @@ $(window).load(function () {
     var Ector = require('ector');
     ector = new Ector();
     var previousResponseNodes = null;
-    var user = { username: "Guy"};
+    var user = { username: ector.username};
     var msgtpl = $('#msgtpl').html();
     var lastmsg = false;
     $('#msgtpl').remove();
     var message;
+    $('#name').attr('value', user.username);
 
     $('#send').on('click', function () {
         if (localStorage) { save.show(); load.show(); }
@@ -72,5 +75,10 @@ $(window).load(function () {
         load.hide();
         alert('ECTOR loaded.');
         return false;
+    });
+
+    name.on('change', function () {
+        ector.setUser(name.attr('value'));
+        user.username = ector.username;
     });
 });

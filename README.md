@@ -40,6 +40,10 @@ You can customize your Ector, using its parameters:
 ```javascript
 ector = new Ector('botname', 'username');
 ```
+or using `setUser` method:
+```javascript
+ector.setUser('newName');
+```
 
 ## Demonstration
 
@@ -50,6 +54,7 @@ it will recognize its name).
 At this moment, your name is `Guy`, guy. OK?
 
 ## Release History
+* 2013/01/11: version 0.1.4: change your name
 * 2013/01/09: version 0.1.3: add save/load in the example
 * 2013/01/09: version 0.1.2: fix Firefox's version
 * 2013/01/08: version 0.1.0: first release
