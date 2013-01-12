@@ -20,7 +20,7 @@ jshint:
 	@jshint $(JS_FILES) $(JSON_FILES) --config config/jshint.json
 
 # call it like that: make version v=2.0.5
-version:
+version: minify
 	@tools/patch-version-number.js --version $(v)
 
 index.html: README.md html/top.html html/bottom.html
