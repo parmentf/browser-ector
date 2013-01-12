@@ -1,0 +1,41 @@
+{
+  "name": "browser-ector",
+  "description": "A learning chatterbot in HTML / Javascript (ECTOR).",
+  "version": "0.1.4",
+  "homepage": "http://parmentf.github.com/browser-ector",
+  "author": {
+    "name": "François Parmentier",
+    "email": "francois.parmentier@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/parmentf/browsser-ector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/parmentf/browser-ector/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/parmentf/browser-ector/blob/master/LICENSE-MIT"
+    }
+  ],
+  "bin": { "get-version": "tools/get-version.js"},
+  "scripts": {
+    "preinstall": "npm install -g jshint uglify-js",
+    "jshint": "make jshint",
+    "test": "make test"
+  },
+  "devDependencies": {
+    "optimist": "*",
+    "glob": "*",
+    "jshint": "*"
+  },
+  "keywords": [
+    "bot",
+    "chatterbot",
+    "learning",
+    "browser"
+  ],
+  "readmeFilename": "README.md"
+}
