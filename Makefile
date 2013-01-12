@@ -23,7 +23,7 @@ jshint:
 version:
 	@tools/patch-version-number.js --version $(v)
 
-html: README.md
+index.html: README.md html/top.html html/bottom.html
 	@markdown README.md > content.html
 	@cat html/top.html content.html html/bottom.html > index.html
 	@rm content.html
