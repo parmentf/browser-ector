@@ -5,77 +5,71 @@
         <title>ECTOR Project</title>
     </head>
     <body>
-<h1>ECTOR</h1>
+        <a href="https://github.com/parmentf/browser-ector"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a><h1>ECTOR</h1>
+<p>A learning chatterbot in HTML / Javascript (ECTOR).
 
-<p>A learning chatterbot in HTML / Javascript (ECTOR).</p>
+</p>
+<p>The browserified (<a href="https://github.com/substack/node-browserify/">browserify</a>) version of <a href="https://github.com/parmentf/node-ector">node-ector</a>.
 
-<p>The browserified (<a href="https://github.com/substack/node-browserify/">browserify</a>) version of <a href="https://github.com/parmentf/node-ector">node-ector</a>.</p>
-
+</p>
 <h2>Installation</h2>
-
 <h3>Get the files</h3>
+<p>Download the files: <a href="https://github.com/parmentf/browser-ector/archive/master.zip">https://github.com/parmentf/browser-ector/archive/master.zip</a>
 
-<p>Download the files: https://github.com/parmentf/browser-ector/archive/master.zip</p>
-
+</p>
 <p>Or clone the repository:
-<code>bash
-git clone https://github.com/parmentf/browser-ector.git
-</code></p>
-
+</p>
+<pre><code class="lang-bash">git clone https://github.com/parmentf/browser-ector.git</code></pre>
 <h3>Try it</h3>
-
 <p>Then, drag and drop file <code>browser-ector/ector.html</code> into your browser
-(tested in Google Chrome 23, Firefox 18 and Chromium 20).</p>
+(tested in Google Chrome 23, Firefox 18 and Chromium 20).
 
+</p>
 <h3>Put it in another application</h3>
-
 <p>Import <code>js/bundle-ector.js</code>, <code>js/jquery-1.8.3.min.js</code>, <code>js/mustache.js</code>, and
-<code>js/ector.js</code> into your HTML page.</p>
+<code>js/ector.js</code> into your HTML page.
 
-<p>Take a look at <code>ector.js</code>, and adapt it to your web application.</p>
+</p>
+<p>Take a look at <code>ector.js</code>, and adapt it to your web application.
 
+</p>
 <p>The important part is:
-```javascript
-var Ector = require('ector');
-ector = new Ector();</p>
+</p>
+<pre><code class="lang-javascript">var Ector = require(&#39;ector&#39;);
+ector = new Ector();
 
-<p>var previousResponseNodes = null;
+var previousResponseNodes = null;
 ector.addEntry(entry);
 ector.linkNodesToLastSentence(previousResponseNodes);
 var response = ector.generateResponse();
-console.log('%s: %s', ector.name, response.sentence);
-previousResponseNodes = response.nodes;
-```</p>
-
+console.log(&#39;%s: %s&#39;, ector.name, response.sentence);
+previousResponseNodes = response.nodes;</code></pre>
 <p>You can customize your Ector, using its parameters:
-<code>javascript
-ector = new Ector('botname', 'username');
-</code>
-or using <code>setUser</code> method:
-<code>javascript
-ector.setUser('newName');
-</code></p>
-
+</p>
+<pre><code class="lang-javascript">ector = new Ector(&#39;botname&#39;, &#39;username&#39;);</code></pre>
+<p>or using <code>setUser</code> method:
+</p>
+<pre><code class="lang-javascript">ector.setUser(&#39;newName&#39;);</code></pre>
 <h2>Demonstration</h2>
-
 <p>You can take a look at the example page, and <a href="http://parmentf.github.com/browser-ector/ector.html">talk to
 ECTOR</a> (name it <code>ECTOR</code>,
-it will recognize its name).</p>
+it will recognize its name).
 
-<p>At this moment, your name is <code>Guy</code>, guy. OK?</p>
+</p>
+<p>At this moment, your name is <code>Guy</code>, guy. OK?
 
+</p>
 <h2>Release History</h2>
-
 <ul>
 <li>2013/01/11: version 0.1.4: change your name</li>
 <li>2013/01/09: version 0.1.3: add save/load in the example</li>
-<li>2013/01/09: version 0.1.2: fix Firefox's version</li>
+<li>2013/01/09: version 0.1.2: fix Firefox&#39;s version</li>
 <li>2013/01/08: version 0.1.0: first release</li>
 </ul>
-
 <h2>License</h2>
+<p>Copyright (c) 2013 François Parmentier <a href="&#x6d;&#97;&#x69;&#108;&#116;&#x6f;&#58;&#102;&#114;&#97;&#110;&#99;&#111;&#105;&#115;&#x2e;&#x70;&#97;&#114;&#x6d;&#x65;&#110;&#x74;&#x69;&#101;&#114;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#109;">&#102;&#114;&#97;&#110;&#99;&#111;&#105;&#115;&#x2e;&#x70;&#97;&#114;&#x6d;&#x65;&#110;&#x74;&#x69;&#101;&#114;&#x40;&#x67;&#x6d;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#109;</a>
+Licensed under the MIT license.
+</p>
 
-<p>Copyright (c) 2013 François Parmentier <a href="&#x6D;&#x61;&#x69;&#x6C;&#x74;&#111;:&#x66;&#114;&#97;&#110;&#x63;&#111;&#105;&#x73;&#x2E;&#x70;&#97;&#114;&#x6D;&#101;&#x6E;&#116;&#x69;&#x65;&#114;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#99;&#111;&#109;">&#x66;&#114;&#97;&#110;&#x63;&#111;&#105;&#x73;&#x2E;&#x70;&#97;&#114;&#x6D;&#101;&#x6E;&#116;&#x69;&#x65;&#114;&#64;&#103;&#109;&#97;&#x69;&#108;&#46;&#99;&#111;&#109;</a>
-Licensed under the MIT license.</p>
     </body>
 </html>
