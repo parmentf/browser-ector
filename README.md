@@ -18,7 +18,7 @@ Then, drag and drop file ``browser-ector/ector.html`` into your browser
 (tested in Google Chrome 23, Firefox 18 and Chromium 20).
 
 ### Put it in another application
-Import `js/bundle-ector.js`, `js/jquery-1.8.3.min.js`, `js/mustache.js`, and
+Import `js/bundle-ector.min.js`, `js/jquery-1.8.3.min.js`, `js/mustache.min.js`, and
 `js/ector.js` into your HTML page.
 
 Take a look at ``ector.js``, and adapt it to your web application.
