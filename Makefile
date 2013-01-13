@@ -24,7 +24,7 @@ version: minify
 	@tools/patch-version-number.js --version $(v)
 
 index.html: README.md html/top.html html/bottom.html
-	@markdown README.md > content.html
+	@markded --gfm README.md > content.html
 	@cat html/top.html content.html html/bottom.html > index.html
 	@rm content.html
 
