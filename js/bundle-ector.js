@@ -331,6 +331,47 @@ exports.extname = function(path) {
   return splitPathRe.exec(path)[3] || '';
 };
 
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
 });
 
 require.define("__browserify_process",function(require,module,exports,__dirname,__filename,process,global){var process = module.exports = {};
@@ -516,14 +557,18 @@ Ector.prototype = {
     var sentences = tokenizer.getSentences();
     var tokens = [];
     var tokenNodes = [];
+    var prevSentenceNode = null;
     var sentenceNode;
     var prevTokenNode;
     var curTokenNode;
     var curToken;
     // all sentences
     for (var sentenceIndex in sentences) {
-      tokens = tokens.concat(tokenizer.getTokens(sentenceIndex));
+      tokens = tokenizer.getTokens(Number(sentenceIndex));
       sentenceNode = this.cn.addNode('s' + sentences[sentenceIndex]);
+      if (prevSentenceNode) {
+        this.cn.addLink(prevSentenceNode.id, sentenceNode.id);
+      }
       if (Number(sentenceIndex) === 0) {
         this.lastSentenceNodeId = sentenceNode.id;
       }
@@ -533,8 +578,13 @@ Ector.prototype = {
       for (var tokenIndex in tokens) {
         curToken = tokens[tokenIndex];
         curTokenNode = this.cn.addNode('w' + curToken);
+        // First token of a sentence
+        if (Number(tokenIndex) === 0) {
+          if (typeof curTokenNode.beg === 'undefined') { curTokenNode.beg = 1; }
+          else { curTokenNode.beg += 1; }
+        }
         // tokens in the middle of the sentence
-        if (tokenIndex > 0 && tokenIndex < tokens.length - 1) {
+        else if (tokenIndex > 0 && tokenIndex < tokens.length - 1) {
           if (typeof curTokenNode.mid === 'undefined') { curTokenNode.mid = 1; }
           else { curTokenNode.mid += 1; }
         }
@@ -546,14 +596,12 @@ Ector.prototype = {
           this.cn.addLink(prevTokenNode.id, curTokenNode.id);
         }
         prevTokenNode = curTokenNode;
-      }
-      // First token of a sentence
-      if (typeof tokenNodes[0].beg === 'undefined') { tokenNodes[0].beg = 1; }
-      else { tokenNodes[0].beg += 1; }
+      } // For all tokens in the sentence
       // Last token of a sentence
       if (typeof tokenNodes[tokenNodes.length - 1].end === 'undefined') { tokenNodes[tokenNodes.length - 1].end = 1; }
       else { tokenNodes[tokenNodes.length - 1].end += 1; }
-    }
+      prevSentenceNode = sentenceNode;
+    } // For all sentences
     return tokenNodes;
   },
 
@@ -838,19 +886,18 @@ if (window.localStorage) debug.enable(localStorage.debug);
 })();
 });
 
-require.define("/node_modules/sugar/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./release/1.3.7/sugar-1.3.7-full.development.js"}
+require.define("/node_modules/sugar/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./release/sugar-full.development.js"}
 });
 
-require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.js",function(require,module,exports,__dirname,__filename,process,global){/*
- *  Sugar Library v1.3.7
+require.define("/node_modules/sugar/release/sugar-full.development.js",function(require,module,exports,__dirname,__filename,process,global){/*
+ *  Sugar Library v1.3.8
  *
  *  Freely distributable and licensed under the MIT-style license.
- *  Copyright (c) 2012 Andrew Plummer
+ *  Copyright (c) 2013 Andrew Plummer
  *  http://sugarjs.com/
  *
  * ---------------------------- */
 (function(){
-
   /***
    * @package Core
    * @description Internal utility and common methods.
@@ -862,6 +909,9 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
 
   // The global context
   var globalContext = typeof global !== 'undefined' ? global : this;
+
+  // Type check methods need a way to be accessed dynamically outside global context.
+  var typeChecks = {};
 
   // defineProperty exists in IE8 but will error when trying to define a property on
   // native objects. IE8 does not have defineProperies, however, so this check saves a try/catch block.
@@ -879,10 +929,19 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   var isString   = buildClassCheck(ClassNames[5]);
   var isRegExp   = buildClassCheck(ClassNames[6]);
 
-  function buildClassCheck(type) {
-    return function(obj) {
-      return className(obj) === '[object '+type+']';
+  function buildClassCheck(name) {
+    var type, fn;
+    if(/String|Number|Boolean/.test(name)) {
+      type = name.toLowerCase();
     }
+    fn = (name === 'Array' && array.isArray) || function(obj) {
+      if(type && typeof obj === type) {
+        return true;
+      }
+      return className(obj) === '[object '+name+']';
+    }
+    typeChecks[name] = fn;
+    return fn;
   }
 
   function className(obj) {
@@ -900,16 +959,22 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     if(klass['SugarMethods']) return;
     defineProperty(klass, 'SugarMethods', {});
     extend(klass, false, false, {
-      'restore': function() {
-        var all = arguments.length === 0, methods = multiArgs(arguments);
-        iterateOverObject(klass['SugarMethods'], function(name, m) {
-          if(all || methods.indexOf(name) > -1) {
-            defineProperty(m.instance ? klass.prototype : klass, name, m.method);
-          }
-        });
-      },
       'extend': function(methods, override, instance) {
         extend(klass, instance !== false, override, methods);
+      },
+      'sugarRestore': function() {
+        return batchMethodExecute(klass, arguments, function(target, name, m) {
+          defineProperty(target, name, m.method);
+        });
+      },
+      'sugarRevert': function() {
+        return batchMethodExecute(klass, arguments, function(target, name, m) {
+          if(m.existed) {
+            defineProperty(target, name, m.original);
+          } else {
+            delete target[name];
+          }
+        });
       }
     });
   }
@@ -917,10 +982,11 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   // Class extending methods
 
   function extend(klass, instance, override, methods) {
-    var extendee = instance ? klass.prototype : klass, original;
+    var extendee = instance ? klass.prototype : klass;
     initializeClass(klass);
     iterateOverObject(methods, function(name, method) {
-      original = extendee[name];
+      var original = extendee[name];
+      var existed  = hasOwnProperty(extendee, name);
       if(typeof override === 'function') {
         method = wrapNative(extendee[name], method, override);
       }
@@ -928,7 +994,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
         defineProperty(extendee, name, method);
       }
       // If the method is internal to Sugar, then store a reference so it can be restored later.
-      klass['SugarMethods'][name] = { instance: instance, method: method, original: original };
+      klass['SugarMethods'][name] = { instance: instance, method: method, original: original, existed: existed };
     });
   }
 
@@ -941,13 +1007,26 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     extend(klass, instance, override, methods);
   }
 
+  function batchMethodExecute(klass, args, fn) {
+    var all = args.length === 0, methods = multiArgs(args), changed = false;
+    iterateOverObject(klass['SugarMethods'], function(name, m) {
+      if(all || methods.indexOf(name) > -1) {
+        changed = true;
+        fn(m.instance ? klass.prototype : klass, name, m);
+      }
+    });
+    return changed;
+  }
+
   function wrapNative(nativeFn, extendedFn, condition) {
     return function() {
+      var fn;
       if(nativeFn && (condition === true || !condition.apply(this, arguments))) {
-        return nativeFn.apply(this, arguments);
+        fn = nativeFn;
       } else {
-        return extendedFn.apply(this, arguments);
+        fn = extendedFn;
       }
+      return fn.apply(this, arguments);
     }
   }
 
@@ -963,8 +1042,8 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   // Argument helpers
 
   function multiArgs(args, fn) {
-    var result = [], i;
-    for(i = 0; i < args.length; i++) {
+    var result = [], i, len;
+    for(i = 0, len = args.length; i < len; i++) {
       result.push(args[i]);
       if(fn) fn.call(args, args[i], i);
     }
@@ -1122,7 +1201,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
         thingIsObject,
         thingIsArray,
         klass, value,
-        arr, key, i;
+        arr, key, i, len;
 
     // Return quickly if string to save cycles
     if(type === 'string') return thing;
@@ -1151,7 +1230,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
       stack.push(thing);
       value = string(thing.constructor);
       arr = thingIsArray ? thing : object.keys(thing).sort();
-      for(i = 0; i < arr.length; i++) {
+      for(i = 0, len = arr.length; i < len; i++) {
         key = thingIsArray ? i : arr[i];
         value += key + stringify(thing[key], stack);
       }
@@ -1174,13 +1253,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
 
   function objectIsMatchedByValue(obj) {
     var klass = className(obj);
-    return klass === '[object Date]'      ||
-           klass === '[object Array]'     ||
-           klass === '[object String]'    ||
-           klass === '[object Number]'    ||
-           klass === '[object RegExp]'    ||
-           klass === '[object Boolean]'   ||
-           klass === '[object Arguments]' ||
+    return /^\[object Date|Array|String|Number|RegExp|Boolean|Arguments\]$/.test(klass) ||
            isObject(obj);
   }
 
@@ -2116,9 +2189,10 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'removeAt': function(start, end) {
+      var i, len;
       if(isUndefined(start)) return this;
       if(isUndefined(end)) end = start;
-      for(var i = 0; i <= (end - start); i++) {
+      for(i = 0, len = end - start; i <= len; i++) {
         this.splice(start, 1);
       }
       return this;
@@ -2563,9 +2637,14 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'randomize': function() {
-      var a = this.concat();
-      for(var j, x, i = a.length; i; j = parseInt(math.random() * i), x = a[--i], a[i] = a[j], a[j] = x) {};
-      return a;
+      var arr = this.concat(), i = arr.length, j, x;
+      while(i) {
+        j = (math.random() * i) | 0;
+        x = arr[--i];
+        arr[i] = arr[j];
+        arr[j] = x;
+      }
+      return arr;
     },
 
     /***
@@ -2819,9 +2898,8 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   function buildEnumerableMethods(names, mapping) {
     extendSimilar(object, false, false, names, function(methods, name) {
       methods[name] = function(obj, arg1, arg2) {
-        var result;
-        var x =  keysWithCoercion(obj);
-        result = array.prototype[name].call(x, function(key) {
+        var result, coerced = keysWithCoercion(obj);
+        result = array.prototype[name].call(coerced, function(key) {
           if(mapping) {
             return transformArgument(obj[key], arg1, obj, [key, obj[key], obj]);
           } else {
@@ -3049,7 +3127,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     },
     {
       unit: 'week',
-      method: 'Week',
+      method: 'ISOWeek',
       multiplier: function() {
         return 7 * 24 * 60 * 60 * 1000;
       }
@@ -3447,7 +3525,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   }
 
   function cleanDateInput(str) {
-    str = str.trim().replace(/^(just )?now|\.+$/i, '');
+    str = str.trim().replace(/^just (?=now)|\.+$/i, '');
     return convertAsianDigits(str);
   }
 
@@ -3644,11 +3722,13 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
       if(!format) {
         // The Date constructor does something tricky like checking the number
         // of arguments so simply passing in undefined won't work.
-        d = f ? new date(f) : new date();
+        if(f !== 'now') {
+          d = new date(f);
+        }
         if(forceUTC) {
           // Falling back to system date here which cannot be parsed as UTC,
           // so if we're forcing UTC then simply add the offset.
-          d.addMinutes(d.getTimezoneOffset());
+          d.addMinutes(-d.getTimezoneOffset());
         }
       } else if(relative) {
         d.advance(set);
@@ -3723,6 +3803,20 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     return [value, unit, ms];
   }
 
+  function getAdjustedUnitWithMonthFallback(date) {
+    var adu = getAdjustedUnit(date.millisecondsFromNow());
+    if(adu[1] === 6) {
+      // If the adjusted unit is in months, then better to use
+      // the "monthsfromNow" which applies a special error margin
+      // for edge cases such as Jan-09 - Mar-09 being less than
+      // 2 months apart (when using a strict numeric definition).
+      // The third "ms" element in the array will handle the sign
+      // (past or future), so simply take the absolute value here.
+      adu[0] = math.abs(date.monthsFromNow());
+    }
+    return adu;
+  }
+
 
   // Date formatting helpers
 
@@ -3733,11 +3827,11 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     } else if(Date[format]) {
       format = Date[format];
     } else if(isFunction(format)) {
-      adu = getAdjustedUnit(date.millisecondsFromNow());
+      adu = getAdjustedUnitWithMonthFallback(date);
       format = format.apply(date, adu.concat(loc));
     }
     if(!format && relative) {
-      adu = adu || getAdjustedUnit(date.millisecondsFromNow());
+      adu = adu || getAdjustedUnitWithMonthFallback(date);
       // Adjust up if time is in ms, as this doesn't
       // look very good for a standard relative date.
       if(adu[1] === 0) {
@@ -3927,7 +4021,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
   }
 
   function callDateSet(d, method, value) {
-    return d['set' + (d._utc ? 'UTC' : '') + method](value);
+    return d['set' + (d._utc && method != 'ISOWeek' ? 'UTC' : '') + method](value);
   }
 
   // The ISO format allows times strung together without a demarcating ":", so make sure
@@ -4237,9 +4331,9 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
         methods['beginningOf' + caps] = function() {
           var set = {};
           switch(unit) {
-            case 'year':  set['year']  = callDateGet(this, 'FullYear'); break;
-            case 'month': set['month'] = callDateGet(this, 'Month');    break;
-            case 'day':   set['day']   = callDateGet(this, 'Date');     break;
+            case 'year':  set['year']    = callDateGet(this, 'FullYear'); break;
+            case 'month': set['month']   = callDateGet(this, 'Month');    break;
+            case 'day':   set['day']     = callDateGet(this, 'Date');     break;
             case 'week':  set['weekday'] = 0; break;
           }
           return this.set(set, true);
@@ -4247,9 +4341,9 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
         methods['endOf' + caps] = function() {
           var set = { 'hours': 23, 'minutes': 59, 'seconds': 59, 'milliseconds': 999 };
           switch(unit) {
-            case 'year':  set['month'] = 11; set['day'] = 31; break;
-            case 'month': set['day'] = this.daysInMonth(); break;
-            case 'week':  set['weekday'] = 6; break;
+            case 'year':  set['month']   = 11; set['day'] = 31; break;
+            case 'month': set['day']     = this.daysInMonth();  break;
+            case 'week':  set['weekday'] = 6;                   break;
           }
           return this.set(set, true);
         };
@@ -4529,6 +4623,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      * @method setWeekday()
      * @returns Nothing
      * @short Sets the weekday of the date.
+     * @extra In order to maintain a parallel with %getWeekday% (which itself is an alias for Javascript native %getDay%), Sunday is considered day %0%. This contrasts with ISO-8601 standard (used in %getISOWeek% and %setISOWeek%) which places Sunday at the end of the week (day 7). This effectively means that passing %0% to this method while in the middle of a week will rewind the date, where passing %7% will advance it.
      *
      * @example
      *
@@ -4542,35 +4637,42 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     },
 
      /***
-     * @method setWeek()
+     * @method setISOWeek()
      * @returns Nothing
-     * @short Sets the week (of the year).
+     * @short Sets the week (of the year) as defined by the ISO-8601 standard.
+     * @extra Note that this standard places Sunday at the end of the week (day 7).
      *
      * @example
      *
-     *   d = new Date(); d.setWeek(15); d; -> 15th week of the year
+     *   d = new Date(); d.setISOWeek(15); d; -> 15th week of the year
      *
      ***/
-    'setWeek': function(week) {
+    'setISOWeek': function(week) {
+      var weekday = callDateGet(this, 'Day') || 7;
       if(isUndefined(week)) return;
-      var date = callDateGet(this, 'Date');
-      callDateSet(this, 'Month', 0);
-      callDateSet(this, 'Date', (week * 7) + 1);
+      this.set({ 'month': 0, 'date': 4 });
+      this.set({ 'weekday': 1 });
+      if(week > 1) {
+        this.addWeeks(week - 1);
+      }
+      if(weekday !== 1) {
+        this.advance({ 'days': weekday - 1 });
+      }
       return this.getTime();
     },
 
      /***
-     * @method getWeek()
+     * @method getISOWeek()
      * @returns Number
-     * @short Gets the date's week (of the year).
-     * @extra If %utc% is set on the date, the week will be according to UTC time.
+     * @short Gets the date's week (of the year) as defined by the ISO-8601 standard.
+     * @extra Note that this standard places Sunday at the end of the week (day 7). If %utc% is set on the date, the week will be according to UTC time.
      *
      * @example
      *
-     *   new Date().getWeek()    -> today's week of the year
+     *   new Date().getISOWeek()    -> today's week of the year
      *
      ***/
-    'getWeek': function() {
+    'getISOWeek': function() {
       return getWeekNumber(this);
     },
 
@@ -4867,7 +4969,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      ***/
     'clone': function() {
       var d = new date(this.getTime());
-      d.utc(this.isUTC());
+      d.utc(!!this._utc);
       return d;
     }
 
@@ -5376,6 +5478,8 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
 
   function setDelay(fn, ms, after, scope, args) {
     var index;
+    // Delay of infinity is never called of course...
+    if(ms === Infinity) return;
     if(!fn.timers) fn.timers = [];
     if(!isNumber(ms)) ms = 0;
     fn.timers.push(setTimeout(function(){
@@ -5406,17 +5510,19 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'lazy': function(ms, limit) {
-      var fn = this, queue = [], lock = false, execute, rounded, perExecution;
+      var fn = this, queue = [], lock = false, execute, rounded, perExecution, result;
       ms = ms || 1;
       limit = limit || Infinity;
       rounded = ceil(ms);
-      perExecution = round(rounded / ms);
+      perExecution = round(rounded / ms) || 1;
       execute = function() {
         if(lock || queue.length == 0) return;
+        // Allow fractions of a millisecond by calling
+        // multiple times per actual timeout execution
         var max = math.max(queue.length - perExecution, 0);
         while(queue.length > max) {
           // Getting uber-meta here...
-          Function.prototype.apply.apply(fn, queue.shift());
+          result = Function.prototype.apply.apply(fn, queue.shift());
         }
         setDelay(lazy, rounded, function() {
           lock = false;
@@ -5427,9 +5533,12 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
       function lazy() {
         // The first call is immediate, so having 1 in the queue
         // implies two calls have already taken place.
-        if(lock && queue.length > limit - 2) return;
-        queue.push([this, arguments]);
-        execute();
+        if(!lock || queue.length < limit - 1) {
+          queue.push([this, arguments]);
+          execute();
+        }
+        // Return the memoized result
+        return result;
       }
       return lazy;
     },
@@ -5557,10 +5666,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'once': function() {
-      var fn = this;
-      return function() {
-        return hasOwnProperty(fn, 'memo') ? fn['memo'] : fn['memo'] = fn.apply(this, arguments);
-      }
+      return this.throttle(Infinity);
     },
 
      /***
@@ -6114,9 +6220,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
     extendSimilar(object, false, false, ClassNames, function(methods, name) {
       var method = 'is' + name;
       ObjectTypeMethods.push(method);
-      methods[method] = function(obj) {
-        return className(obj) === '[object '+name+']';
-      }
+      methods[method] = typeChecks[name];
     });
   }
 
@@ -6322,8 +6426,12 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      ***/
     'clone': function(obj, deep) {
       var target;
-      if(!isObjectPrimitive(obj)) return obj;
-      if (obj instanceof Hash) {
+      // Preserve internal UTC flag when applicable.
+      if(isDate(obj) && obj.clone) {
+        return obj.clone();
+      } else if(!isObjectPrimitive(obj)) {
+        return obj;
+      } else if (obj instanceof Hash) {
         target = new Hash;
       } else {
         target = new obj.constructor;
@@ -6750,12 +6858,12 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
       *
       ***/
     'unescapeHTML': function() {
-      return this.replace(/&amp;/g,  '&')
-                 .replace(/&lt;/g,   '<')
+      return this.replace(/&lt;/g,   '<')
                  .replace(/&gt;/g,   '>')
                  .replace(/&quot;/g, '"')
                  .replace(/&apos;/g, "'")
-                 .replace(/&#x2f;/g, '/');
+                 .replace(/&#x2f;/g, '/')
+                 .replace(/&amp;/g,  '&');
     },
 
      /***
@@ -6803,7 +6911,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'each': function(search, fn) {
-      var match, i;
+      var match, i, len;
       if(isFunction(search)) {
         fn = search;
         search = /[\s\S]/g;
@@ -6816,7 +6924,7 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
       }
       match = this.match(search) || [];
       if(fn) {
-        for(i = 0; i < match.length; i++) {
+        for(i = 0, len = match.length; i < len; i++) {
           match[i] = fn.call(this, match[i], i, match) || match[i];
         }
       }
@@ -6855,8 +6963,8 @@ require.define("/node_modules/sugar/release/1.3.7/sugar-1.3.7-full.development.j
      *
      ***/
     'codes': function(fn) {
-      var codes = [];
-      for(var i=0; i<this.length; i++) {
+      var codes = [], i, len;
+      for(i = 0, len = this.length; i < len; i++) {
         var code = this.charCodeAt(i);
         codes.push(code);
         if(fn) fn.call(this, code, i);
@@ -8586,7 +8694,7 @@ Date.addLocale('fr', {
     '{0?} {unit=5-7} {shift}'
   ],
   'timeParse': [
-    '{0?} {date?} {month} {year?}',
+    '{weekday?} {0?} {date?} {month} {year?}',
     '{0?} {weekday} {shift}'
   ]
 });
@@ -9441,24 +9549,11 @@ Tokenizer.prototype = {
     });
 
     var self = this;
-    self.sentences = [];
     var botnameRegExp = new RegExp("\\W?" + self.botname.normalize() + "\\W?");
     var usernameRegExp = new RegExp("\\W?" + self.username.normalize() + "\\W?");
-    // Since reduce() don't browse through 1-length arrays...
-    if (words.length === 1) {
-      var word = words[0];
-      var wordNormalized = word.normalize();
-      var wordReplaced;
-      if (wordNormalized.search(botnameRegExp) !== -1) {
-        wordReplaced = word.replace(self.botname,"{yourname}");
-      }
-      else if (wordNormalized.search(usernameRegExp) !== -1) {
-        wordReplaced = word.replace(self.username,"{myname}");
-      }
-      self.sentences.push(word);
-      return [word];
-    }
-    words.reduce(function(prev,cur, index, array) {
+    var lastSentence = words[0];
+    self.sentences = [];
+    words.reduce(function (prev, cur, index, array) {
       var curNormalized = cur.normalize();
       var curReplaced = cur;
       if (curNormalized.search(botnameRegExp) !== -1) {
@@ -9467,15 +9562,15 @@ Tokenizer.prototype = {
       else if (curNormalized.search(usernameRegExp) !== -1) {
         curReplaced = cur.replace(self.username,"{myname}");
       }
-      prev = prev + " " + curReplaced;
-      if(endingWords.indexOf(cur) != -1 ||
-        index === array.length -1)
-      {
-        self.sentences.push(prev.compact());
-        prev = "";
+
+      if (endingWords.indexOf(prev) != -1) {
+        self.sentences.push(lastSentence.compact());
+        lastSentence = "";
       }
-      return prev;
+      lastSentence = lastSentence + " " + curReplaced;
+      return cur;
     });
+    self.sentences.push(lastSentence.compact());
     return this.sentences;
   },
   // Get the tokens of one sentence
@@ -10065,3 +10160,4 @@ var RandomWeightedChoice = function (table, temperature, randomFunction, influen
 
 module.exports = RandomWeightedChoice;
 });
+

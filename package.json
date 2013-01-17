@@ -1,7 +1,7 @@
 {
   "name": "browser-ector",
   "description": "A learning chatterbot in HTML / Javascript (ECTOR).",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "http://parmentf.github.com/browser-ector",
   "author": {
     "name": "François Parmentier",
