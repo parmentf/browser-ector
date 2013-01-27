@@ -20,16 +20,14 @@
       "url": "https://github.com/parmentf/browser-ector/blob/master/LICENSE-MIT"
     }
   ],
-  "bin": { "get-version": "tools/get-version.js"},
-  "scripts": {
-    "preinstall": "npm install -g jshint uglify-js",
-    "jshint": "make jshint",
-    "test": "make test"
-  },
   "devDependencies": {
+	"ector": "*",
+    "jshint": "*",
+	"uglify-js": "*",
+    "browserify": "*",
+    "sugar": "*",
     "optimist": "*",
-    "glob": "*",
-    "jshint": "*"
+    "marked": "*"
   },
   "keywords": [
     "bot",

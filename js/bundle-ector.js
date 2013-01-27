@@ -731,8 +731,8 @@ Ector.prototype = {
     var nodes = phraseNodes.map(function (node) {
       return node.id;
     });
-    sentence = sentence.replace("{yourname}", this.username);
-    sentence = sentence.replace("{myname}", this.name);
+    sentence = sentence.replace(/\{yourname\}/g, this.username);
+    sentence = sentence.replace(/\{myname\}/g, this.name);
     return { sentence: sentence, nodes: nodes };
   },
 
@@ -751,6 +751,28 @@ Ector.prototype = {
     for (var i in nodes) {
       var nodeId = nodes[i];
       this.cn.addLink(nodeId, this.lastSentenceNodeId);
+    }
+  },
+
+  /**
+   * ### injectConceptNetwork
+   *
+   * inject a new ConceptNetwork constructor.
+   * Useful when one wants to use specialized ConceptNetwork (e.g.
+   * FileConceptNetwork)
+   *
+   * WARNING: reinitialize this.cn and this.cn[this.username].cns
+   * @param {ConceptNetwork} NewConceptNetwork
+   */
+  injectConceptNetwork : function (NewConceptNetwork) {
+    this.cn = new NewConceptNetwork();
+    if (this.cn instanceof ConceptNetwork) {
+      ConceptNetwork = NewConceptNetwork;
+      this.cns[this.username] = new ConceptNetworkState(this.cn);
+    }
+    else {
+      this.cn = new ConceptNetwork();
+      throw new Error('NewConceptNetwork is not a ConceptNetwork');
     }
   }
 
@@ -10160,4 +10182,3 @@ var RandomWeightedChoice = function (table, temperature, randomFunction, influen
 
 module.exports = RandomWeightedChoice;
 });
-
