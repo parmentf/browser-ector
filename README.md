@@ -54,6 +54,7 @@ it will recognize its name).
 At this moment, your name is `Guy`, guy. OK?
 
 ## Release History
+* 2013/01/27: version 0.1.6: update to ector 0.1.6 (bug fixes)
 * 2013/01/17: version 0.1.5: update to ector 0.1.4 (bug fixes)
 * 2013/01/11: version 0.1.4: change your name
 * 2013/01/09: version 0.1.3: add save/load in the example
