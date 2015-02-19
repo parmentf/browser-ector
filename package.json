@@ -20,6 +20,9 @@
       "url": "https://github.com/parmentf/browser-ector/blob/master/LICENSE-MIT"
     }
   ],
+  "scripts": {
+    "build": "browserify node_modules/ector | uglifyjs -o js/bundle-ector.min.js"
+  },
   "devDependencies": {
 	  "ector": "*",
     "jshint": "*",
