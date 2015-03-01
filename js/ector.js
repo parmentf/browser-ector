@@ -15,7 +15,7 @@ $(window).load(function () {
     }
 
     var Ector = require('ector');
-    ector = new Ector();
+    ector = window.ector = new Ector();
     var previousResponseNodes = null;
     var user = { username: ector.username};
     var msgtpl = $('#msgtpl').html();
@@ -66,7 +66,7 @@ $(window).load(function () {
     });
 
     load.on('click', function () {
-        var cn = localStorage.ector;
+        var cn = window.cn = localStorage.ector;
         ector.cns = {};
         var newCN = Object.create(require('concept-network').ConceptNetwork.prototype);
         Object.merge(newCN, JSON.parse(cn));

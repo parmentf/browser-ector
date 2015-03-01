@@ -21,12 +21,13 @@
     }
   ],
   "scripts": {
-    "build": "browserify node_modules/ector | uglifyjs -o js/bundle-ector.min.js"
+    "build": "browserify -r ector -r concept-network | uglifyjs -o js/bundle-ector.min.js"
   },
   "devDependencies": {
-	  "ector": "*",
+    "concept-network": "^1.2.0",
+    "ector": "^1.0.0",
     "jshint": "*",
-	  "uglify-js": "*",
+    "uglify-js": "*",
     "browserify": "*",
     "sugar": "*",
     "optimist": "*",
